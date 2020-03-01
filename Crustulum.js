@@ -1,4 +1,9 @@
-let Crustulum = {
+if (typeof Crustulum !== 'undefined') {
+    if (Crustulum === null) {
+        delete Crustulum;
+    } else throw new Error('Crustulum already loaded.');
+}
+var Crustulum = {
     OG: {}, // Original Game Data
     Game: { // Our overrides
         UpdateMenu: () => {
@@ -42,6 +47,8 @@ let Crustulum = {
 
                 // Unload Crustulum button. Doesn't work if you loaded other add-ons first. We check only for Cookie Monster.
                 if (typeof CM === 'undefined' || Crustulum.cookieMonsterLoaded) fragment.appendChild(Crustulum.Menu.actionButton('unloadCrustulum','Unload Crustulum','Unloads Crustulum and disabled all of it\'s features.', Crustulum.Actions.unloadCrustulum));
+
+                Crustulum.PluginHooks.UpdateMenu(fragment);
         
                 l('menu').childNodes[2].insertBefore(fragment, l('menu').childNodes[2].childNodes[l('menu').childNodes[2].childNodes.length - 1]);
             }
@@ -117,7 +124,9 @@ let Crustulum = {
                 }
             });
             Crustulum.Liberate.Game();
+            Crustulum.PluginHooks.UnloadPlugins();
             Game.UpdateMenu();
+            setTimeout(() => Crustulum = null, 100);
         },
     },
     ConfigDefaults: { // The default value for the configs
@@ -146,6 +155,7 @@ let Crustulum = {
         Crustulum.initTicks();
         Game.Win('Third-party');
         if (typeof CM === 'object' && typeof Queue !== 'undefined' && typeof jscolor !== 'undefined') Crustulum.cookieMonsterLoaded = true;
+        Crustulum.PluginHooks.Init();
     },
     cookieMonsterLoaded: false,
     Menu: {
@@ -224,30 +234,31 @@ let Crustulum = {
     Liberate: {
         Game: () => {
             if (Crustulum.OG.UpdateMenu) Game.UpdateMenu = Crustulum.OG.UpdateMenu;
-            if (Crustulum.OG.shimmerPrototypeInit) Crustulum.OG.shimmerPrototypeInit = function() {
+            if (Crustulum.OG.shimmerPrototypeInit) Game.shimmer.prototype.init = function() {
                 Game.shimmerTypes[this.type].initFunc(this);
-            }
-            if (!Crustulum.OG.hasGod) Crustulum.Liberate.hasGod();
+            };
+            if (Game.hasGod) Crustulum.Liberate.hasGod();
             Crustulum.Liberate.miniGames();
         },
         miniGames: () => {
             if(Game.Objects['Farm'].minigameLoaded && Game.Objects['Farm'].minigame.plants && Game.Objects['Farm'].minigame.soils) {
                 if (Crustulum.OG.gardenPlantsMortality) Object.keys(Game.Objects['Farm'].minigame.plants).forEach((plantName) => {
                     let plant = Game.Objects['Farm'].minigame.plants[plantName];
-                    if (!plant.weed && !plant.fungus) plant.immortal = Crustulum.OG.gardenPlantsMortality[plantName];
+                    if (!plant.weed && !plant.fungus) Object.defineProperty(plant, 'immortal', {value:Crustulum.OG.gardenPlantsMortality[plantName],configurable: true});
                 });
         
                 if (Crustulum.OG.gardenSoilWeed) Object.keys(Game.Objects['Farm'].minigame.soils).forEach((soilName) => {
                     let soil = Game.Objects['Farm'].minigame.soils[soilName];
-                    soil.weedMult = Crustulum.OG.gardenSoilWeed[soilName];
+                    Object.defineProperty(soil, 'weedMult', {value:Crustulum.OG.gardenSoilWeed[soilName],configurable: true});
                 });
             }
-            if(Game.Objects['Wizard tower'].minigameLoaded && !Game.Objects['Wizard tower'].minigame.getFailChance) {
+            if(Game.Objects['Wizard tower'].minigameLoaded && Game.Objects['Wizard tower'].minigame.getFailChance) {
                 if (Crustulum.OG.grimoireFailChance) Game.Objects['Wizard tower'].minigame.getFailChance = Crustulum.OG.grimoireFailChance;
             }
         },
         hasGod: () => {
             if(Game.Objects['Temple'].minigameLoaded && Game.Objects['Temple'].minigame.gods && Crustulum.OG.hasGod && Game.hasGod) Game.hasGod = Crustulum.OG.hasGod;
+            else delete Game.hasGod;
         },
     },
     Hijack: {
@@ -272,6 +283,7 @@ let Crustulum = {
             Crustulum.Hijack.miniGames();
         },
         miniGames: () => {
+            if (!Crustulum) return;
             retry = false;
         
             if(!Game.Objects['Farm'].minigameLoaded || !Game.Objects['Farm'].minigame.plants || !Game.Objects['Farm'].minigame.soils) {
@@ -283,7 +295,7 @@ let Crustulum = {
                         let plant = Game.Objects['Farm'].minigame.plants[plantName];
                         if (!plant.weed && !plant.fungus) {
                             Crustulum.OG.gardenPlantsMortality[plantName] = plant.immortal;
-                            Object.defineProperty(plant, 'immortal',{get:()=>{return (Crustulum.getConfig('immortalPlants')?true:Crustulum.OG.gardenPlantsMortality[plantName])}});
+                            Object.defineProperty(plant, 'immortal', {get:()=>{return (Crustulum.getConfig('immortalPlants')?true:Crustulum.OG.gardenPlantsMortality[plantName])},configurable: true});
                         }
                     });
                 }
@@ -293,7 +305,7 @@ let Crustulum = {
                     Object.keys(Game.Objects['Farm'].minigame.soils).forEach((soilName) => {
                         let soil = Game.Objects['Farm'].minigame.soils[soilName];
                         Crustulum.OG.gardenSoilWeed[soilName] = soil.weedMult;
-                        Object.defineProperty(soil, 'weedMult',{get:()=>{return (Crustulum.getConfig('neverWeeds')?0:Crustulum.OG.gardenSoilWeed[soilName])}});
+                        Object.defineProperty(soil, 'weedMult',{get:()=>{return (Crustulum.getConfig('neverWeeds')?0:Crustulum.OG.gardenSoilWeed[soilName])},configurable: true});
                     });
                 }
             }
@@ -310,6 +322,7 @@ let Crustulum = {
             if (retry) setTimeout(Crustulum.Hijack.miniGames, 1000);
         },
         hasGod: () => {
+            if (!Crustulum) return;
             if(!Game.Objects['Temple'].minigameLoaded || !Game.Objects['Temple'].minigame.gods) {
                 setTimeout(Crustulum.Hijack.hasGod, 1000); // We keep running this until we get the real Game.hasGod()
             } else if (!Crustulum.OG.hasGod && Game.hasGod) {
@@ -404,8 +417,44 @@ let Crustulum = {
             },
         },
     },
+    PluginHooks: {
+        Init: () => {
+            Object.keys(Crustulum.Plugins).forEach((key) => {
+                let plugin = Crustulum.Plugins[key];
+                if (typeof plugin['Init'] === 'function') plugin['Init']();
+            });
+        },
+        UnloadPlugins: () => {
+            Object.keys(Crustulum.Plugins).forEach((key) => {
+                let plugin = Crustulum.Plugins[key];
+                if (typeof plugin['Unload'] === 'function') plugin['Unload']();
+            });
+        },
+        UpdateMenu: (fragment) => {
+            Object.keys(Crustulum.Plugins).forEach((key) => {
+                let plugin = Crustulum.Plugins[key];
+                if (typeof plugin['Game'] === 'object' && typeof plugin['Game']['UpdateMenu'] === 'function') plugin['Game']['UpdateMenu'](fragment);
+            });
+        },
+    },
+    Plugins: {}, // Plugins
 };
 
-Crustulum.Init();
+// You can setup `CrustulumPlugins` (object) with your custom plugins before loading this script
+if (typeof CrustulumPlugins === 'object') {
+    Object.keys(CrustulumPlugins).forEach((key) => {
+        let plugin = CrustulumPlugins[key];
+        if (typeof plugin === 'object') {
+            Crustulum.Plugins[key] = plugin;
+            if (typeof Crustulum.Plugins[key]['Loaded'] === 'function') Crustulum.Plugins[key].Loaded();
+        } else if (typeof plugin === 'function') {
+            Crustulum.Plugins[key] = plugin;
+            Crustulum.Plugins[key]();
+        }
+    });
+}
+
+// Alternatively, you can set CrustulumInit to false to prevent the Init and set up your plugins after loading the script, remember to call `Crustulum.Init()` afterwards.
+if (typeof CrustulumInit === 'undefined' || CrustulumInit) Crustulum.Init();
 
 /* cSpell:ignore Crustulum, Toggleables, prefs, minigame, Mult, grimoire, grimoire's, grimoire\'s, Cyclius, dragonflight, Achiev, jscolor */
