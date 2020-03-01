@@ -302,7 +302,6 @@ let Crustulum = {
                 retry = true;
             } else {
                 if (!Crustulum.OG.grimoireFailChance) {
-                    console.log('override fail chance');
                     Crustulum.OG.grimoireFailChance = Game.Objects['Wizard tower'].minigame.getFailChance;
                     Game.Objects['Wizard tower'].minigame.getFailChance = (spell)=>(Crustulum.getConfig('miracleSpells')?0:Crustulum.OG.grimoireFailChance(spell));
                 }

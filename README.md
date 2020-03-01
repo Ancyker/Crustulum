@@ -71,12 +71,14 @@ A variety of actions are also available. These are once off actions and have no 
 ## How To Use
 To use the add-on simply run the following in the developer console:
 ```javascript
-(function () {Game.LoadMod('https://raw.githubusercontent.com/Ancyker/Crustulum/master/Crustulum.js')}());
+(function () {Game.LoadMod('https://cdn.jsdelivr.net/gh/Ancyker/Crustulum/Crustulum.js')}());
 ```
 Or you can use this bookmarklet:
 ```javascript
-javascript:(function () {Game.LoadMod('https://raw.githubusercontent.com/Ancyker/Crustulum/master/Crustulum.js')}());
+javascript:(function () {Game.LoadMod('https://cdn.jsdelivr.net/gh/Ancyker/Crustulum/Crustulum.js')}());
 ```
+
+Note: jsDelivr is a third party service. Use at your own risk.
 
 ## Authors & Copyright Stuff
 I wrote all the code myself, though the original Cookie Clicker code was obviously used in some places. I also looked at Cookie Monster for reference on how to make buttons appear in the menu.
