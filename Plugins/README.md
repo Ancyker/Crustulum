@@ -4,9 +4,11 @@ These plugins extend the features of Crustulum. I may make a feature request tha
 ## Available Plugins
 * **example**
   * This plugin was created as an example of how to make a plugin. It adds a button that adds 10 sugar lumps when clicked.
+* **perfectIdling**
+  * Adds a button to toggle the 'Perfect idling' upgrade which makes cookies generate while the game is closed.
 
 ## How To Use
-To use the add-on simply run the following in the developer console (make sure to update the name):
+To use a plugin simply run the following in the developer console (make sure to update the name):
 ```javascript
 (function () {Game.LoadMod('https://cdn.jsdelivr.net/gh/Ancyker/Crustulum/Plugins/name.CrustulumPlugin.js')}());
 ```
