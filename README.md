@@ -71,11 +71,11 @@ A variety of actions are also available. These are once off actions and have no 
 ## How To Use
 To use the add-on simply run the following in the developer console:
 ```javascript
-(function () {Game.LoadMod('https://cdn.jsdelivr.net/gh/Ancyker/Crustulum/Crustulum.js')}());
+(function () {Game.LoadMod('https://raw.githubusercontent.com/Ancyker/Crustulum/master/Crustulum.js')}());
 ```
 Or you can use this bookmarklet:
 ```javascript
-javascript:(function () {Game.LoadMod('https://cdn.jsdelivr.net/gh/Ancyker/Crustulum/Crustulum.js')}());
+javascript:(function () {Game.LoadMod('https://raw.githubusercontent.com/Ancyker/Crustulum/master/Crustulum.js')}());
 ```
 
 Note: jsDelivr is a third party service. Use at your own risk.
